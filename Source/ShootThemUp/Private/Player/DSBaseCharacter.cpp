@@ -4,6 +4,7 @@
 #include "Player/DSBaseCharacter.h"
 #include "Camera/CameraComponent.h"
 #include "Components/InputComponent.h"
+#include "GameFramework/SpringArmComponent.h"
 
 // Sets default values
 ADSBaseCharacter::ADSBaseCharacter()
@@ -11,8 +12,12 @@ ADSBaseCharacter::ADSBaseCharacter()
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
+	SpringArmComponent = CreateDefaultSubobject<USpringArmComponent>("SpringArmComponent");
+	SpringArmComponent->SetupAttachment(GetRootComponent());
+	SpringArmComponent->bUsePawnControlRotation = true;
+	
 	CameraComponent = CreateDefaultSubobject<UCameraComponent>("CameraComponent");
-	CameraComponent->SetupAttachment(GetRootComponent());
+	CameraComponent->SetupAttachment(SpringArmComponent);
 }
 
 // Called when the game starts or when spawned
@@ -36,6 +41,9 @@ void ADSBaseCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 
 	PlayerInputComponent->BindAxis("MoveForward", this,&ADSBaseCharacter::MoveForward);
 	PlayerInputComponent->BindAxis("MoveRight", this,&ADSBaseCharacter::MoveRight);
+	PlayerInputComponent->BindAxis("LookUp", this,&ADSBaseCharacter::AddControllerPitchInput);
+	PlayerInputComponent->BindAxis("Turn", this,&ADSBaseCharacter::AddControllerYawInput);
+	PlayerInputComponent->BindAction("jump",IE_Pressed, this, &ADSBaseCharacter::Jump);
 }
 
 void ADSBaseCharacter::MoveForward(float Amount)
@@ -48,4 +56,3 @@ void ADSBaseCharacter::MoveRight(float Amount)
 {
 	AddMovementInput(GetActorRightVector(), Amount);
 }
-
